@@ -1,0 +1,37 @@
+#DataSourceProperties
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/community
+    username: root
+    password: 123456
+    #连接池属性
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      #最大连接数
+      maximum-pool-size: 15
+      #最小空闲连接
+      minimum-idle: 5
+      #超时时间
+      idle-timeout: 30000
+#MybatisProperties
+mybatis:
+  #映射文件存放位置
+  mapper-locations: classpath:mapper/*.xml
+  #设置别名
+  type-aliases-package: com.nowcoder.community.entity
+  configuration:
+    #启动自增长主键
+    use-generated-keys: true
+    #下划线转驼峰
+    map-underscore-to-camel-case: true
+#设置日志级别
+#logging:
+#  level:
+#    com.nowcoder.community: debug
+#默认访问路径
+server:
+  servlet:
+    context-path: "/community"
+
+
