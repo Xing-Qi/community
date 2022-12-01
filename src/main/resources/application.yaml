@@ -14,6 +14,19 @@ spring:
       minimum-idle: 5
       #超时时间
       idle-timeout: 30000
+   #邮箱设置
+  mail:
+    username:
+    password:
+    port: 465
+    protocol: smtps
+    host: smtp.sina.com
+    #开启ssl
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
 #MybatisProperties
 mybatis:
   #映射文件存放位置
@@ -33,5 +46,12 @@ mybatis:
 server:
   servlet:
     context-path: "/community"
+#community
+community:
+  path:
+    domain: http://localhost:8080
+    upload: E:/JAVA-workspace/upload
+
+
 
 

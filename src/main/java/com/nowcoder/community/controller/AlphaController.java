@@ -1,12 +1,16 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.service.AlphaService;
+import com.nowcoder.community.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,5 +82,43 @@ public class AlphaController {
         emp.put("name","张三");
         emp.put("age","30");
         return emp;
+    }
+
+    //setcookie
+    @GetMapping("/cookie/set")
+    @ResponseBody
+    public String setCookie(HttpServletResponse response){
+        //创建cookie对象
+        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());
+        //设置作用范围
+        cookie.setPath("/community/alpha");
+        //设置有效时间
+        cookie.setMaxAge(60*10);//秒
+        //添加到响应体中
+        response.addCookie(cookie);
+        return "set Cookie";
+    }
+
+    @GetMapping("/cookie/get")
+    @ResponseBody
+    public String getCookie(){
+        return "get cookie";
+    }
+
+    //session
+    @GetMapping("/session/set")
+    @ResponseBody
+    public String setSession(HttpSession session){
+        session.setAttribute("id",1);
+        session.setAttribute("name","Test");
+        return "set Session";
+    }
+
+    @GetMapping("/session/get")
+    @ResponseBody
+    public String getSession(HttpSession session){
+        System.out.println(session.getAttribute("id"));
+        System.out.println(session.getAttribute("name"));
+        return "get Session";
     }
 }

@@ -1,21 +1,184 @@
 package com.nowcoder.community.service.impl;
 
+import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.mapper.LoginTicketMapper;
 import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityConstant;
+import com.nowcoder.community.util.CommunityUtil;
+import com.nowcoder.community.util.HostHolder;
+import com.nowcoder.community.util.MailClient;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import java.util.*;
 
 /**
  * @author Oliver
  * @create 2022-11-25 10:08
  */
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, CommunityConstant {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private MailClient mailClient;
+    @Autowired
+    private TemplateEngine templateEngine;
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+    @Value("${community.path.domain}")
+    String domain;
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
     @Override
     public User findUserById(int id) {
-      return userMapper.selectUserById(id);
+        return userMapper.selectUserById(id);
+    }
+
+    @Override
+    public Map<String, Object> register(User user) {
+        Map<String, Object> map = new HashMap<>();
+        //1.空值处理
+        //1.1用户对象
+        if (user == null) {
+            throw new IllegalArgumentException("参数不能为空！");
+        }
+        //1.2用户名
+        if (StringUtils.isBlank(user.getUsername())) {
+            map.put("usernameMsg", "用户名不能为空！");
+            return map;
+        }
+        //1.3密码
+        if (StringUtils.isBlank(user.getPassword())) {
+            map.put("passwordMsg", "密码不能为空！");
+            return map;
+        }
+        //1.4邮箱
+        if (StringUtils.isBlank(user.getEmail())) {
+            map.put("emailMsg", "邮箱不能为空！");
+            return map;
+        }
+        //2.验证账号
+        //2.1判断用户名是否存在
+        User uName = userMapper.selectUserByName(user.getUsername());
+        if (uName != null) {
+            map.put("usernameMsg", "用户名已存在！");
+            return map;
+        }
+        //2.2判断邮箱
+        User uEmail = userMapper.selectUserByEmail(user.getEmail());
+        if (uEmail != null) {
+            map.put("emailMsg", "邮箱已存在！");
+            return map;
+        }
+        //3.注册用户
+        user.setSalt(CommunityUtil.generateUUID().substring(0, 5));
+        user.setPassword(CommunityUtil.md5(user.getPassword() + user.getSalt()));
+        user.setUsername(user.getUsername());
+        user.setEmail(user.getEmail());
+        user.setActivationCode(CommunityUtil.generateUUID());
+        user.setType(0);//0表示普通用户,1表示管理员,2表示版主
+        user.setStatus(0); //0表示未激活,1表示已激活
+        user.setHeaderUrl(String.format("http://images.nowcoder.com/head/%dt.png", new Random().nextInt(1000)));
+        user.setCreateTime(new Date());
+        userMapper.insertUser(user);
+        //4.发送激活邮件
+        //thymeleafContext
+        Context context = new Context();
+        context.setVariable("email", user.getEmail());
+        //http://hostname/contextPath/activation/userId/code 激活地址
+        String url = domain + contextPath + "/" + "activation/" + user.getId() + "/" + user.getActivationCode();
+        context.setVariable("url", url);
+        String content = templateEngine.process("/mail/activation", context);
+        mailClient.sendMail(user.getEmail(), "激活邮件", content);
+        return map;
+    }
+
+    @Override
+    public int activation(int userId, String code) {
+        User user = userMapper.selectUserById(userId);
+        //判断账号状态
+        if (user.getStatus() == 1) {
+            return ACTIVATION_REPEAT;
+        } else if (user.getActivationCode().equals(code)) {
+            userMapper.updateStatus(userId, 1);
+            return ACTIVATION_SUCCESS;
+        } else {
+            return ACTIVATION_FAILED;
+        }
+    }
+
+    @Override
+    public Map<String, Object> login(String username, String password, int expiredSeconds) {
+        Map<String, Object> map = new HashMap();
+        User user = userMapper.selectUserByName(username);
+        //空值处理
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "用户名不能为空!");
+            return map;
+        }
+
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空!");
+            return map;
+        }
+        //验证用户
+        //账号
+        if (user == null) {
+            map.put("usernameMsg", "用户不存在!");
+            return map;
+        }
+        //状态
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "用户未激活!");
+            return map;
+        }
+        //密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!password.equals(user.getPassword())) {
+            map.put("passwordMsg", "密码错误!");
+            return map;
+        }
+        //生成登录凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
+    //退出
+    @Override
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
+    }
+
+    //查询凭证
+    @Override
+    public LoginTicket finLoginTicket(String ticket) {
+        return loginTicketMapper.selectLoginTicketByTicket(ticket);
+    }
+
+    @Override
+    //修改用户头像
+    public int updateHeader(int userId, String headerUrl) {
+       return  userMapper.upateHeader(userId,headerUrl);
+    }
+
+    @Override
+    //修改用户密码
+    public int updateUserPassword(int userId, String password) {
+        //
+        return userMapper.updateUserPassword(userId,password);
     }
 }
