@@ -16,8 +16,8 @@ spring:
       idle-timeout: 30000
    #邮箱设置
   mail:
-    username:
-    password:
+    username: qixing_xinlang@sina.com
+    password: f741e57369eeaa06
     port: 465
     protocol: smtps
     host: smtp.sina.com
