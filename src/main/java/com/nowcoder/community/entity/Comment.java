@@ -8,13 +8,13 @@ public class Comment {
     private Integer id;
 
     private Integer userId;
-
+    //1为帖子,2为评论
     private Integer entityType;
 
     private Integer entityId;
-
+    //回复的目标id
     private Integer targetId;
-
+    //0代表可用
     private Integer status;
 
     private Date createTime;

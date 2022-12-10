@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,5 +31,23 @@ public class DiscussPostTest {
         int i = discussPostMapper.selectDiscussPostRows(101);
         System.out.println(i
         );
+    }
+    @Test
+    public void testInsertDiscussPost(){
+        DiscussPost discussPost = new DiscussPost();
+        discussPost.setUserId(101);
+        discussPost.setTitle("test");
+        discussPost.setContent("testeststsets");
+        discussPost.setCreateTime(new Date());
+        discussPostMapper.insertDiscussPost(discussPost);
+    }
+    @Test
+    public void testFindDiscussPostById(){
+        DiscussPost discussById = discussPostMapper.findDiscussById(280);
+        System.out.println(discussById);
+    }
+    @Test
+    public void testUpdateCommentCount(){
+        discussPostMapper.updateCommentCount(324,1);
     }
 }

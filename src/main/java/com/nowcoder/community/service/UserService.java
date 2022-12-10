@@ -67,4 +67,11 @@ public interface UserService {
      * @return
      */
     int updateUserPassword(int userId,String password);
+
+    /**
+     * 根据用户名查询用户
+     * @param username
+     * @return
+     */
+    User selectUserByUsername(String username);
 }

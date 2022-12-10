@@ -22,6 +22,7 @@ public class LoginRequiredInterceptor  implements HandlerInterceptor {
     private HostHolder hostHolder;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
         if(handler instanceof HandlerMethod){
             // HandlerMethod封装了很多属性，
             // 在访问请求方法的时候可以方便的访问到方法、方法参数、方法上的注解、所属类等并且对方法参数封装处理，

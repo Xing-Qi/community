@@ -41,10 +41,6 @@ class CommunityApplicationTests {
 //        System.out.println(user2.getId());
     }
 
-    @Test
-    public void test1(){
-        Comment comment = commentMapper.selectByPrimaryKey(1);
-        System.out.println(comment);
-    }
+
 
 }

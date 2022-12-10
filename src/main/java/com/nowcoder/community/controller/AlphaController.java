@@ -121,4 +121,11 @@ public class AlphaController {
         System.out.println(session.getAttribute("name"));
         return "get Session";
     }
+    @PostMapping("/ajax")
+    @ResponseBody
+    public String testAjax(String name,int age){
+        System.out.println(name);
+        System.out.println(age);
+        return CommunityUtil.getJsonString(0,"ok");
+    }
 }

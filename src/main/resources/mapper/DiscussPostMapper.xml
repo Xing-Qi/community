@@ -30,4 +30,12 @@
             and user_id = #{userId}
         </if>
     </select>
+<!--    DiscussPost findDiscussById(@Param("id") int id);-->
+    <select id="findDiscussById" resultType="discussPost">
+        select * from discuss_post where id = #{id}
+    </select>
+<update id="updateCommentCount">
+    update discuss_post set comment_count = #{commentCount} where id = #{id}
+</update>
 </mapper>
+

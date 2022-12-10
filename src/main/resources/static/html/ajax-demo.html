@@ -1,28 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
     <title>AJAX</title>
 </head>
 <body>
 <p>
-    <input type="button" value="发送" onclick="send();">
+    <input type="button" value="发送" onclick="send()">
 </p>
+<!--引入jquery-->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 <script>
-    function send() {
+    function send(){
         $.post(
-            "/alpha/ajax",
-            {"name": "张三", "age": 23},
-            function (data) {
-                console.log(typeof (data));
+            // 发送的地址
+            "/community/alpha/ajax",
+            //发送的数据
+            {"name":"张三","age":23},
+            function (data){ //data 函数回调返回的数据
+                console.log(typeof(data));
                 console.log(data);
+                //解析成josn字符串
                 data = $.parseJSON(data);
-                console.log(typeof (data));
+                console.log(typeof(data));
                 console.log(data.code);
                 console.log(data.msg);
             }
-        );
+        )
     }
 </script>
 </body>
