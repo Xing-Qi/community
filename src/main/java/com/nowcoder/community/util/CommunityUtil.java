@@ -45,11 +45,13 @@ public class CommunityUtil {
         }
         return json.toJSONString();
     }
-    public static String getJsonString(int code, String msg){
-        return getJsonString(code,msg,null);
+
+    public static String getJsonString(int code, String msg) {
+        return getJsonString(code, msg, null);
     }
-    public static String getJsonString(int code){
-        return getJsonString(code,null,null);
+
+    public static String getJsonString(int code) {
+        return getJsonString(code, null, null);
     }
 
 }

@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 //配置类注解
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer {
+public class  WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private AlphaInterceptor alphaInterceptor;
     @Autowired

@@ -27,6 +27,10 @@ spring:
         smtp:
           ssl:
             enable: true
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
 #MybatisProperties
 mybatis:
   #映射文件存放位置
@@ -51,6 +55,7 @@ community:
   path:
     domain: http://localhost:8080
     upload: E:/JAVA-workspace/upload
+#redis
 
 
 

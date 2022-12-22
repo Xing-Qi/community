@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.*;
  * @create 2022-11-28 19:52
  */
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
     /**
      * 插入登录凭证

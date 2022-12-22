@@ -5,6 +5,8 @@ import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CookieUtil;
 import com.nowcoder.community.util.HostHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,13 +22,23 @@ import java.util.Date;
  */
 @Component
 public class LoginTicketInterceptor implements HandlerInterceptor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginTicketInterceptor.class);
     @Autowired
     private UserService userService;
     @Autowired
     private HostHolder hostHolder;
 
+    /**
+     * 判断是否有用户登录
+     * @param request
+     * @param response
+     * @param handler
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        LOGGER.debug("调用LoginTicketInterceptor#preHandle");
         //从cookie中获取凭证
         String ticket = CookieUtil.getCookie(request, "ticket");
         if(ticket != null){
@@ -53,6 +65,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
      */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        LOGGER.debug("调用LoginTicketInterceptor#postHandle");
         User user = hostHolder.getUser();
         if(user!= null && modelAndView !=null){
             modelAndView.addObject("loginUser",user);
@@ -61,6 +74,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        LOGGER.debug("调用LoginTicketInterceptor#afterCompletion");
         hostHolder.clear();
     }
 }

@@ -32,4 +32,33 @@
     <insert id="insertComment" >
         insert into comment(<include refid="insertFields"></include>) values (#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime})
     </insert>
+    <select id="selectCommentByUser" resultType="comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where status != 1
+        and user_id = #{userId}
+        and entity_type = 1
+        and exists(
+        select id from discuss_post
+        where id = comment.entity_id and status != 2
+        )
+        order by create_time desc
+        limit #{offset},#{limit}
+    </select>
+    <select id="selectCommentById" resultType="comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where id = #{id}
+    </select>
+    <select id="selectCommentCountByUserId" resultType="int">
+        select count(id)
+        from comment
+        where status != 1
+        and user_id = #{userId}
+        and entity_type = 1
+          and exists (
+            select id from discuss_post where id = comment.entity_id and status != 2
+            )
+    </select>
+
 </mapper>
