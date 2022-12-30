@@ -20,6 +20,32 @@ public class MessageMapperTests {
     @Autowired
     private MessageMapper messageMapper;
     @Test
+    @DisplayName("查询通知数据")
+    public void testFindNotices(){
+        List<Message> like = messageMapper.selectNotices(149, "like", 0, 5);
+        for (Message notice : like){
+            System.out.println(notice);
+        }
+    }
+    @Test
+    @DisplayName("查询未读的通知数量")
+    public void testSelectUnreadCount(){
+        int count = messageMapper.selectNoticeUnreadCount(149,null);
+        System.out.println(count);
+    }
+    @Test
+    @DisplayName("查询某个主题所包含的通知数量")
+    public void testSelectNoticeCount(){
+        int count = messageMapper.selectNoticeCount(149, "comment");
+        System.out.println(count);
+    }
+    @Test
+    @DisplayName("查询相应主题的最新消息")
+    public void testSelectLaterNotice(){
+        Message message = messageMapper.selectLaterNotice(149, "comment");
+        System.out.println(message);
+    }
+    @Test
     @DisplayName("更新私信状态")
     public void testUpdateMessageStatus(){
         List<Integer> ids = new ArrayList<>();

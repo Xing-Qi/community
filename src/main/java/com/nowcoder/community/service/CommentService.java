@@ -20,7 +20,7 @@ import java.util.List;
  * @create 2022-12-06 16:55
  */
 @Service
-public class CommentService implements CommunityConstant {
+public class  CommentService implements CommunityConstant {
     @Autowired
     public CommentMapper commentMapper;
     @Autowired

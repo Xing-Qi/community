@@ -72,14 +72,14 @@
                     <h6><b class="square"></b> 系统通知</h6>
                 </div>
                 <div class="col-4 text-right">
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="back();">返回</button>
+                    <button type="button" class="btn btn-secondary btn-sm"  onclick="back();">返回</button>
                 </div>
             </div>
 
             <!-- 通知列表 -->
             <ul class="list-unstyled mt-4">
                 <li class="media pb-3 pt-3 mb-2" th:each="map:${notices}">
-                    <img src="http://static.nowcoder.com/images/head/notify.png" th:src="${map.fromUser.headerUrl}"
+                    <img th:src="${map.fromUser.headerUrl}"
                          class="mr-4 rounded-circle user-header" alt="系统图标">
                     <div class="toast show d-lg-block" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="toast-header">
@@ -98,7 +98,7 @@
 									<i th:utext="${map.user.username}">nowcoder</i>
 									评论了你的
 									<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
-									<a class="text-primary" href="#" th:href="@{|/discuss/detail/${map.postId}|}">
+									<a class="text-primary" th:href="@{|/discuss/detail/${map.postId}|}" >
 										点击查看
 									</a> !
 								</span>
@@ -106,14 +106,14 @@
 									<i th:utext="${map.user.username}">nowcoder</i>
 									点赞了你的
 									<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
-									<a class="text-primary" href="#" th:href="@{|/discuss/detail/${map.postId}|}">
+									<a class="text-primary" th:href="@{|/discuss/detail/${map.postId}|}" >
 										点击查看
 									</a> !
 								</span>
                             <span th:if="${topic.equals('follow')}">用户
 									<i th:utext="${map.user.username}">nowcoder</i>
 									关注了你，
-									<a class="text-primary" href="#" th:href="@{|/user/profile/${map.user.id}|}">
+									<a class="text-primary" th:href="@{|/user/profile/${map.user.id}|}" >
 										点击查看
 									</a> !
 								</span>
@@ -124,8 +124,8 @@
                 <!--*/-->
             </ul>
             <!-- 分页 -->
-            <nav class="mt-5" th:replace="index::pagination">
-                <ul class="pagination justify-content-center">
+            <nav class="mt-5" >
+                <ul class="pagination justify-content-center" th:replace="index::pagination">
                     <li class="page-item"><a class="page-link" href="#">首页</a></li>
                     <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
                     <li class="page-item active"><a class="page-link" href="#">1</a></li>
@@ -151,8 +151,8 @@
 <script src="../js/global.js" th:src="@{/js/global.js}"></script>
 <script src="../js/letter.js" th:src="@{/js/letter.js}"></script>
 <script>
-    function back() {
-        location.href = CONTEXT_PATH + "/notice/list";
+    function back(){
+        location.href = CONTEXT_PATH + "/notice/list"
     }
 </script>
 </body>

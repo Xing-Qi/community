@@ -56,6 +56,4 @@ public interface CommentMapper {
      */
     int selectCommentCountByUserId(int userId);
 
-
-
 }

@@ -2,8 +2,10 @@ package com.nowcoder.community.service;
 
 import com.nowcoder.community.entity.Message;
 import com.nowcoder.community.mapper.MessageMapper;
+import com.nowcoder.community.util.SensitiveFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
 public class MessageService {
     @Autowired
     private MessageMapper messageMapper;
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
 
     public List<Message> findConversations(int userId,int offset,int limit){
         return messageMapper.selectConversations(userId,offset,limit);
@@ -28,13 +32,30 @@ public class MessageService {
     public int findLetterCount(String conversationId){
         return messageMapper.selectLetterCount(conversationId);
     }
-    public int findUnreadCount(int userId,String conversationId){
+    public int findLetterUnreadCount(int userId, String conversationId){
         return messageMapper.selectLetterUnreadCount(userId,conversationId);
     }
-    public int insetMessage(Message message){
+    public int insertMessage(Message message){
+        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        message.setContent(sensitiveFilter.filter(message.getContent()));
         return messageMapper.insertMessage(message);
     }
     public int updateMessageStatus(List<Integer> ids ,int status){
         return messageMapper.updateMessageStatus(ids,status);
+    }
+    public Message findLaterNotice(int userId,String topic){
+        return messageMapper.selectLaterNotice(userId,topic);
+    }
+
+    public int findNoticeCount(int userId,String topic){
+        return messageMapper.selectNoticeCount(userId,topic);
+    }
+
+    public int findNoticeUnreadCount(int userId,String topic){
+        return messageMapper.selectNoticeUnreadCount(userId,topic);
+    }
+
+    public List<Message> findNotices(int userId,String topic,int offset,int limit){
+      return messageMapper.selectNotices(userId,topic,offset,limit);
     }
 }

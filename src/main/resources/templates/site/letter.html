@@ -71,14 +71,14 @@
                 <!-- 选项 -->
                 <ul class="nav nav-tabs mb-3">
                     <li class="nav-item">
-                        <a class="nav-link position-relative active" href="letter.html" >
+                        <a class="nav-link position-relative active" th:href="@{/letter/list}">
                             朋友私信<span class="badge badge-danger" th:if="${letterUnreadCount} != 0" th:text="${letterUnreadCount}">3</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link position-relative" href="notice.html" >
+                        <a class="nav-link position-relative" th:href="@{/notice/list}" >
                             系统通知
-                            <span class="badge badge-danger">27</span>
+                            <span class="badge badge-danger" th:if="${noticeUnreadCount} != 0" th:text="${noticeUnreadCount}">27</span>
                         </a>
                     </li>
                 </ul>
