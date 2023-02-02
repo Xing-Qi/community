@@ -5,16 +5,16 @@ spring:
     url: jdbc:mysql://localhost:3306/community
     username: root
     password: 123456
-    #连接池属性
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
+    #连接池属性 com.zaxxer.hikari.HikariDataSource
+    type:  com.alibaba.druid.pool.DruidDataSource
+    druid:
       #最大连接数
-      maximum-pool-size: 15
+      initial-size: 5
       #最小空闲连接
-      minimum-idle: 5
+      min-idle: 5
       #超时时间
-      idle-timeout: 30000
-   #邮箱设置
+      max-wait: 3000
+    #邮箱设置
   mail:
     username: qixing_xinlang@sina.com
     password: f741e57369eeaa06
@@ -27,16 +27,22 @@ spring:
         smtp:
           ssl:
             enable: true
+  #redis
   redis:
     database: 1
     host: localhost
     port: 6379
+    #kafka
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: test-consumer-group
       enable-auto-commit: true
       auto-commit-interval: 3000ms
+  data:
+    elasticsearch:
+      cluster-name: nowcoder
+      cluster-nodes: 127.0.0.1:9300
 #MybatisProperties
 mybatis:
   #映射文件存放位置
@@ -61,8 +67,6 @@ community:
   path:
     domain: http://localhost:8080
     upload: E:/JAVA-workspace/upload
-#kafka
-
 
 
 
