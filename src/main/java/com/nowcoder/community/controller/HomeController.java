@@ -63,4 +63,10 @@ public class HomeController implements CommunityConstant {
         return "error/5xx";
     }
 
+    //拒绝访问时的提示页面
+    @GetMapping("/denied")
+    public String getDeniedPage(){
+        return "/error/404";
+    }
+
 }

@@ -246,7 +246,7 @@ public class MessageController  implements CommunityConstant {
         model.addAttribute("letterUnreadCount",letterUnreadCount);
         int noticeUnreadCount = messageService.findNoticeUnreadCount(user.getId(), null);
         model.addAttribute("noticeUnreadCount",noticeUnreadCount);
-        return "site/notice";
+        return "/site/notice";
     }
 
     //系统通知详情
@@ -271,13 +271,17 @@ public class MessageController  implements CommunityConstant {
                 String content = HtmlUtils.htmlUnescape(notice.getContent());
                 //转成java对象
                 Map<String,Object> data = JSONObject.parseObject(content, HashMap.class);
+
                 map.put("user",userService.findUserById((Integer) data.get("userId")));
                 map.put("entityType",data.get("entityType"));
                 map.put("entityId",data.get("entityId"));
                 map.put("postId",data.get("postId"));
                 //通知作者
                 map.put("fromUser",userService.findUserById(notice.getFromId()));
-                noticeVoList.add(map);
+                //临时解决user为空问题
+                if(userService.findUserById((Integer) data.get("userId"))!=null){
+                    noticeVoList.add(map);
+                }
             }
             model.addAttribute("notices",noticeVoList);
             //设置已读

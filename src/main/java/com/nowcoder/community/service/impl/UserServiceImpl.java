@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -247,4 +248,29 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         redisTemplate.delete(userKey);
     }
 
+    /**
+     * 获得用户权限
+     * @param userId 指定的用户id
+     * @return
+     */
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId){
+        //查询当前用户
+        User user = this.findUserById(userId);
+        //权限列表
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                switch (user.getType()){
+                    case 1:
+                        return AUTHORITY_ADMIN;
+                    case 2:
+                        return AUTHORITY_MODERATOR;
+                    default:
+                        return AUTHORITY_USER;
+                }
+            }
+        });
+        return list;
+    }
 }

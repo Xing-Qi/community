@@ -3,11 +3,17 @@ package com.nowcoder.community.controller.interceptor;
 import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.service.impl.UserServiceImpl;
 import com.nowcoder.community.util.CookieUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,7 +30,7 @@ import java.util.Date;
 public class LoginTicketInterceptor implements HandlerInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginTicketInterceptor.class);
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
     @Autowired
     private HostHolder hostHolder;
 
@@ -50,6 +56,10 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.findUserById(loginTicket.getUserId());
                 //在本次请求中持有用户
                 hostHolder.setUser(user);
+                //构建用户认证结果，并存入securityContext中，以便于security进行授权。
+                Authentication Authentication =
+                        new UsernamePasswordAuthenticationToken(user, user.getPassword(), userService.getAuthorities(user.getId()));
+                SecurityContextHolder.setContext(new SecurityContextImpl(Authentication));
             }
         }
         return true;
@@ -76,5 +86,6 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         LOGGER.debug("调用LoginTicketInterceptor#afterCompletion");
         hostHolder.clear();
+        SecurityContextHolder.clearContext();//清除认证信息
     }
 }

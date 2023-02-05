@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
  * @author Oliver
  * @create 2022-12-01 16:04
  */
+@Deprecated
 @Component
 public class LoginRequiredInterceptor  implements HandlerInterceptor {
     @Autowired
