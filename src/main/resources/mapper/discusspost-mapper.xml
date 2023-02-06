@@ -4,24 +4,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.nowcoder.community.mapper.DiscussPostMapper">
     <sql id="selectRef">
-       id,user_id,title,content,type,status,create_time,comment_count,score
+        id
+        ,user_id,title,content,type,status,create_time,comment_count,score
     </sql>
-<!--    List<DiscussPost> selectDiscussPost(
-    @Param("userId") int userId,
-    @Param("offset") int offset,
-    @Param("limit") int limit
-    );-->
+    <!--    List<DiscussPost> selectDiscussPost(
+        @Param("userId") int userId,
+        @Param("offset") int offset,
+        @Param("limit") int limit
+        );-->
     <select id="selectDiscussPost" resultType="discussPost">
-        select <include refid="selectRef"></include>
-            from discuss_post
-            where status != 2
-            <if test="userId != 0">
-                and user_id = #{userId}
-            </if>
-            order by create_time desc
-            limit #{offset},#{limit}
+        select
+        <include refid="selectRef"></include>
+        from discuss_post
+        where status != 2
+        <if test="userId != 0">
+            and user_id = #{userId}
+        </if>
+        order by type desc,create_time desc
+        limit #{offset},#{limit}
     </select>
-<!--    int selectDiscussPostRows(@Param("userId") int userId);-->
+    <!--    int selectDiscussPostRows(@Param("userId") int userId);-->
     <select id="selectDiscussPostRows" resultType="int">
         select count(id)
         from discuss_post
@@ -30,12 +32,25 @@
             and user_id = #{userId}
         </if>
     </select>
-<!--    DiscussPost findDiscussById(@Param("id") int id);-->
+    <!--    DiscussPost findDiscussById(@Param("id") int id);-->
     <select id="findDiscussById" resultType="discussPost">
-        select * from discuss_post where id = #{id}
+        select *
+        from discuss_post
+        where id = #{id}
     </select>
-<update id="updateCommentCount">
-    update discuss_post set comment_count = #{commentCount} where id = #{id}
-</update>
+    <update id="updateCommentCount">
+        update discuss_post
+        set comment_count = #{commentCount}
+        where id = #{id}
+    </update>
+<!--    int updateType(int id,int type);-->
+    <update id="updateType">
+        update discuss_post set type = #{type} where id = #{id}
+    </update>
+<!--    int updateStatus(int id,int status);-->
+    <update id="updateStatus">
+        update discuss_post set status = #{status} where id = #{id}
+    </update>
 </mapper>
+
 

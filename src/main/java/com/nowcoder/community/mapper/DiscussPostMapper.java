@@ -49,5 +49,26 @@ public interface DiscussPostMapper {
      */
     DiscussPost findDiscussById(@Param("id") int id);
 
+    /**
+     * 更新评论数量
+     * @param id
+     * @param commentCount
+     * @return
+     */
     int updateCommentCount(@Param("id") int id,@Param("commentCount") int commentCount);
+
+    /**
+     * 根据帖子id更改帖子类型  0-普通; 1-置顶;
+     *
+     * @param id
+     * @return
+     */
+    int updateType(int id,int type);
+
+    /**
+     * 根据id修改帖子状态 0-正常; 1-精华; 2-拉黑;
+     * @param id
+     * @return
+     */
+    int updateStatus(int id,int status);
 }

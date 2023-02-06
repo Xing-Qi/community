@@ -8,6 +8,8 @@ import com.nowcoder.community.service.CommentService;
 import com.nowcoder.community.service.DiscussPostService;
 import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.service.impl.DiscussPostServiceImpl;
+import com.nowcoder.community.service.impl.UserServiceImpl;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
@@ -28,11 +30,11 @@ import static java.lang.Integer.MAX_VALUE;
 @RequestMapping("/discuss")
 public class DiscussPostController implements CommunityConstant {
     @Autowired
-    private DiscussPostService discussPostService;
+    private DiscussPostServiceImpl discussPostService;
     @Autowired
     private HostHolder hostHolder;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
     @Autowired
     private CommentService commentService;
     @Autowired
@@ -153,4 +155,70 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    /**
+     * 置顶
+     * @param id 帖子id
+     * @return
+     */
+    @PostMapping("/top")
+    @ResponseBody
+    public String setTop(int id){
+        DiscussPost discussById = discussPostService.findDiscussById(id);
+        //获取置顶状态，1为置顶，0为正常，1^1=0 1^0=0（异或）
+        int type = discussById.getType()^1;
+        discussPostService.updateType(id,type);
+        //返回结果
+        Map<String,Object> map = new HashMap<>();
+        map.put("type",type);
+        //触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJsonString(0,null,map);
+    }
+
+    /**
+     * 加精
+     * @param id 帖子id
+     * @return
+     */
+    @PostMapping("/wonderful")
+    @ResponseBody
+    public String setWonderful(int id){
+        DiscussPost discussById = discussPostService.findDiscussById(id);
+        //获取加精状态，1为加精，0为正常，1^1=0 1^0=0（异或）
+        int status = discussById.getStatus()^1;
+        discussPostService.updateStatus(id,status);
+        //返回结果
+        Map<String,Object> map = new HashMap<>();
+        map.put("status",status);
+        discussPostService.updateStatus(id,status);
+        //触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJsonString(0,null,map);
+    }
+    @PostMapping("/delete")
+    @ResponseBody
+    public String setDelete(int id){
+        discussPostService.updateStatus(id,2);
+        //触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_DELETE)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJsonString(0);
+    }
 }
