@@ -23,6 +23,11 @@ public class DiscussPostTest {
     @Autowired
     UserMapper userMapper;
     @Test
+    @DisplayName("updateScore")
+    public void  testUpdateScore(){
+        discussPostMapper.updateScore(109,1);
+    }
+    @Test
     @DisplayName("testUpdateType")
     public void testUpdateType(){
         discussPostMapper.updateType(275,0);
@@ -34,7 +39,7 @@ public class DiscussPostTest {
     }
     @Test
     public void testDiscussPost(){
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPost(101, 0, 10);
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPost(101, 0, 10,0);
         for (DiscussPost discussPost:discussPosts
              ) {
             System.out.println(discussPost);

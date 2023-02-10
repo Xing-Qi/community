@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,13 +33,13 @@ public class HomeController implements CommunityConstant {
     private LikeService likeService;
 
     @GetMapping(value = {"/index","/"})
-    public String getIndex(Model model, Page page) {
+    public String getIndex(Model model, Page page, @RequestParam(value = "orderMode",defaultValue = "0") int orderMode) {
         //方法调用栈，SpringMVC会自动实例化model和page，并将page注入到model，thymeleaf中可以直接访问page对象中的数据
         //查询全部数据
-        List<DiscussPost> list = discussPostService.findDiscussPost(0, page.getOffset(), page.getLimit());
+        List<DiscussPost> list = discussPostService.findDiscussPost(0, page.getOffset(), page.getLimit(),orderMode);
         //获取总条数
         page.setRows(discussPostService.findDiscussPostRows(0));
-        page.setPath("/index");
+        page.setPath("/index?orderMode=" + orderMode);
         //拼接用户数据
         List<Map<String,Object>> discussPosts = new ArrayList<>();
         //遍历拼接数据
@@ -55,6 +56,7 @@ public class HomeController implements CommunityConstant {
             }
         }
         model.addAttribute("discussPosts",discussPosts);
+        model.addAttribute("orderMode",orderMode);
         return "index";
     }
 

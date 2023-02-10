@@ -8,7 +8,11 @@ import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.service.AlphaService;
 import com.nowcoder.community.util.CommunityUtil;
 import com.sun.org.apache.bcel.internal.generic.NEW;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -25,6 +29,7 @@ import java.util.Date;
  * @create 2022-11-20 16:36
  */
 @Service
+@Slf4j
 public class AlphaServiceImpl implements AlphaService {
     @Autowired
     private AlphaDao alphaDao;
@@ -108,5 +113,13 @@ public class AlphaServiceImpl implements AlphaService {
                 return "ok";
             }
         });
+    }
+    @Async
+    public void execute1(){
+        log.debug("execute1");
+    }
+//    @Scheduled(initialDelay = 10000,fixedRate = 1000)
+    public void execute2(){
+        log.debug("execute2");
     }
 }

@@ -43,6 +43,18 @@ spring:
     elasticsearch:
       cluster-name: nowcoder
       cluster-nodes: 127.0.0.1:9300
+  #Spring线程池
+  task:
+    #普通
+    execution:
+      pool:
+        core-size: 5 #线程池数
+        max-size: 15 #最大扩容
+        queue-capacity: 100 #队列容量
+    #定时
+    scheduling:
+      pool:
+        size: 5
 #MybatisProperties
 mybatis:
   #映射文件存放位置
@@ -67,6 +79,4 @@ community:
   path:
     domain: http://localhost:8080
     upload: E:/JAVA-workspace/upload
-
-
 

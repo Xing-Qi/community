@@ -19,7 +19,7 @@ public interface DiscussPostService {
      * @param limit
      * @return
      */
-    List<DiscussPost> findDiscussPost(int id,int offset,int limit);
+    List<DiscussPost> findDiscussPost(int id,int offset,int limit,int orderMode);
 
     /**
      * 查询评论条数
