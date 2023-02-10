@@ -79,4 +79,8 @@ community:
   path:
     domain: http://localhost:8080
     upload: E:/JAVA-workspace/upload
-
+#生成长图
+wk:
+  image:
+    command: d:/JavaTools/wkhtmltopdf/bin/wkhtmltoimage
+    storage: d:/JavaTools/data/wk-image
