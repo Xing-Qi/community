@@ -2,6 +2,7 @@ package com.nowcoder.community.config;
 
 import com.nowcoder.community.quartz.AlphaJob;
 import com.nowcoder.community.quartz.PostScoreRefreshJob;
+import com.nowcoder.community.quartz.WkDeleteJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.springframework.context.annotation.Bean;
@@ -57,14 +58,35 @@ public class QuartzConfig {
     }
     //配置Trigger(SimpleTriggerFactoryBean,CronTriggerFactoryBean)
     @Bean
-    public SimpleTriggerFactoryBean postScoreRefreshTrigger(JobDetail postScoreJobDetail){
+    public SimpleTriggerFactoryBean postScoreRefreshTrigger(JobDetail postScoreRefreshJobDetail){
         SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-        factoryBean.setJobDetail(postScoreJobDetail);
+        factoryBean.setJobDetail(postScoreRefreshJobDetail);
         factoryBean.setName("postScoreRefreshTrigger");
         factoryBean.setGroup("communityTriggerGroup");
         factoryBean.setRepeatInterval(1000*60*5);
         factoryBean.setJobDataMap(new JobDataMap());
         return factoryBean;
     }
-
+    //配置WkDeleteJob
+    @Bean
+    public JobDetailFactoryBean wkDeleteJobDetail(){
+        JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();//实例化bean
+        factoryBean.setJobClass(WkDeleteJob.class);
+        factoryBean.setName("WkDeleteJob");
+        factoryBean.setGroup("communityJobGroup");
+        factoryBean.setDurability(true);
+        factoryBean.setRequestsRecovery(true);
+        return factoryBean;
+    }
+    //配置Trigger(SimpleTriggerFactoryBean,CronTriggerFactoryBean)
+    @Bean
+    public SimpleTriggerFactoryBean wkDeleteJobTrigger(JobDetail wkDeleteJobDetail){
+        SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
+        factoryBean.setJobDetail(wkDeleteJobDetail);
+        factoryBean.setName("wkDeleteJobTrigger");
+        factoryBean.setGroup("communityTriggerGroup");
+        factoryBean.setRepeatInterval(1000*60*4);
+        factoryBean.setJobDataMap(new JobDataMap());
+        return factoryBean;
+    }
 }
