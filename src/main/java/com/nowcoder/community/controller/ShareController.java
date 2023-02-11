@@ -63,7 +63,7 @@ public class ShareController implements CommunityConstant {
     }
 
     /**
-     * 获取长图
+     * 废弃 改为云服务获取长图
      * @param fileName
      * @param response
      */

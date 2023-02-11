@@ -84,3 +84,15 @@ wk:
   image:
     command: d:/JavaTools/wkhtmltopdf/bin/wkhtmltoimage
     storage: d:/JavaTools/data/wk-image
+#qiniuCloud
+qiniu:
+  key:
+    access: B-LkG13Li9njih1emDHa6XmFc7brnanNOqylcKm8
+    secret: 3apMLITauqqbcMCgx5q_qOm15KpuQn-zVPzBcwqr
+  bucket:
+    header:
+      name: oliver-community-header
+      url: http://rpwcmhpdl.hb-bkt.clouddn.com
+    share:
+      name: oliver-community-share
+      url: http://rpwceg07z.hb-bkt.clouddn.com

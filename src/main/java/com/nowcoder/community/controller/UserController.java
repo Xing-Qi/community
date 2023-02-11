@@ -10,16 +10,15 @@ import com.nowcoder.community.service.*;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -57,11 +56,37 @@ public class UserController implements CommunityConstant {
     private DiscussPostService discussPostService;
     @Autowired
     private CommentService commentService;
+    @Value("${qiniu.key.access}")
+    private String accessKey;
+    @Value("${qiniu.key.secret}")
+    private String secretKey;
+    @Value("${qiniu.bucket.header.name}")
+    private String headerBucketName;
+    @Value("${qiniu.bucket.header.url}")
+    private String headerBucketUrl;
     @LoginRequired
     @GetMapping("/setting")
-    public String getSettingPage() {
+    public String getSettingPage(Model model) {
+        //上传文件名称
+        String fileName = CommunityUtil.generateUUID();
+        //设置响应信息 固定写法
+        StringMap policy = new StringMap();
+        policy.put("returnBody", CommunityUtil.getJsonString(0)); //返回体
+        //生成上传凭证
+        Auth auth = Auth.create(accessKey, secretKey);
+        String uploadToken = auth.uploadToken(headerBucketName, fileName, 3600, policy);
+        model.addAttribute("uploadToken", uploadToken);
+        model.addAttribute("fileName", fileName);
         return "/site/setting";
     }
+
+    /**
+     * 废弃 提交修改头像请求
+     *
+     * @param headerImg
+     * @param model
+     * @return
+     */
     @LoginRequired
     @PostMapping("/upload")
     public String uploadHeader(MultipartFile headerImg, Model model) {
@@ -96,6 +121,12 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
     }
 
+    /**
+     * 废弃返回用户头像
+     *
+     * @param fileName
+     * @param response
+     */
     @GetMapping("/header/{fileName}")
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         //服务器存放路径
@@ -110,8 +141,8 @@ public class UserController implements CommunityConstant {
         ) {
             byte[] buffer = new byte[1024];
             int b = 0;
-            while ((b = fis.read(buffer)) != -1){
-               os.write(buffer,0,b);
+            while ((b = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, b);
             }
         } catch (IOException e) {
             log.error("读取头像失败：" + e.getMessage());
@@ -119,114 +150,141 @@ public class UserController implements CommunityConstant {
     }
 
     @PostMapping("/updatePassword")
-    public String updatePassWord(String oldPassword, String newPassword,Model model){
+    public String updatePassWord(String oldPassword, String newPassword, Model model) {
         //获取本次持有对象
         User user = hostHolder.getUser();
         //对输入的密码进行MD5加密
         oldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
         //输入的密码有误或者为空
-        if(oldPassword == null || !oldPassword.equals(user.getPassword())){
-            model.addAttribute("passwordError","密码输入错误");
+        if (oldPassword == null || !oldPassword.equals(user.getPassword())) {
+            model.addAttribute("passwordError", "密码输入错误");
             return "/site/setting";
         }
         //密码正确
         newPassword = CommunityUtil.md5(newPassword + user.getSalt());
-        userService.updateUserPassword(user.getId(),newPassword);
+        userService.updateUserPassword(user.getId(), newPassword);
         //退出登录,重定向到登录页面
         return "redirect:/logout";
     }
+
+    /**
+     * 更新用户头像地址
+     * @param fileName
+     * @return
+     */
+    @PostMapping("/header/url")
+    @ResponseBody
+    public String updateHeaderUrl(String fileName) {
+        if(StringUtils.isBlank(fileName)){
+            return CommunityUtil.getJsonString(1,"文件名不能为空！");
+        }
+        String url = headerBucketUrl+"/"+fileName;
+        userService.updateHeader(hostHolder.getUser().getId(),url);
+        return CommunityUtil.getJsonString(0);
+    }
+
+    /**
+     * 获取用户详情
+     *
+     * @param userId
+     * @param model
+     * @return
+     */
     @GetMapping("/profile/{userId}")
-    public String getProfilePage(@PathVariable("userId") int userId,Model model){
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
         //查询当前用户
         User user = userService.findUserById(userId);
         //用户不存在
-        if(user == null){
+        if (user == null) {
             throw new RuntimeException("当前用户不存在");
         }
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
         //当前用户点赞数量
         int likeCount = likeService.finUserLikeCount(user.getId());
-        model.addAttribute("likeCount",likeCount);
+        model.addAttribute("likeCount", likeCount);
         //关注数量
-        long followeeCount = followService.findFolloweeCount(userId,ENTITY_TYPE_USER);
-        model.addAttribute("followeeCount",followeeCount);
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount", followeeCount);
         //粉丝数量
-        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER,userId);
-        model.addAttribute("followerCount",followerCount);
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount", followerCount);
         //是否已关注
         boolean hasFollowed = false;
-        if(hostHolder.getUser() != null){
-            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(),ENTITY_TYPE_USER,userId);
+        if (hostHolder.getUser() != null) {
+            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
         }
-        model.addAttribute("hasFollowed",hasFollowed);
+        model.addAttribute("hasFollowed", hasFollowed);
         return "/site/profile";
     }
+
     /**
      * 我的帖子
+     *
      * @param userId
      * @param page
      * @param model
      * @return
      */
     @GetMapping("/mypost/{userId}")
-    public String getMyPost(@PathVariable("userId") int userId, Page page, Model model){
+    public String getMyPost(@PathVariable("userId") int userId, Page page, Model model) {
         User user = userService.findUserById(userId);
-        if(user == null){
+        if (user == null) {
             throw new RuntimeException("该用户不存在!");
         }
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
         //设置分页信息
         page.setLimit(5);
         page.setRows(discussPostService.findDiscussPostRows(userId));
         page.setPath("/user/mypost/" + userId);
         //封装数据
-        List<DiscussPost> discussPost = discussPostService.findDiscussPost(userId, page.getOffset(), page.getLimit(),0);
-        List<Map<String,Object>> discussPostList = new ArrayList<>();
-        if(discussPost!= null){
-            for (DiscussPost post : discussPost){
-                Map<String,Object> map = new HashMap<>();
-                map.put("post",post);
+        List<DiscussPost> discussPost = discussPostService.findDiscussPost(userId, page.getOffset(), page.getLimit(), 0);
+        List<Map<String, Object>> discussPostList = new ArrayList<>();
+        if (discussPost != null) {
+            for (DiscussPost post : discussPost) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
                 //点赞数
                 long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
-                map.put("likeCount",likeCount);
+                map.put("likeCount", likeCount);
                 discussPostList.add(map);
             }
         }
-        model.addAttribute("postCount",discussPostService.findDiscussPostRows(userId));
-        model.addAttribute("discussPostList",discussPostList);
+        model.addAttribute("postCount", discussPostService.findDiscussPostRows(userId));
+        model.addAttribute("discussPostList", discussPostList);
         return "/site/my-post";
     }
 
     @GetMapping("/myreply/{userId}")
-    public String getMyReply(@PathVariable("userId") int userId,Page page,Model model){
+    public String getMyReply(@PathVariable("userId") int userId, Page page, Model model) {
         User user = userService.findUserById(userId);
-        if(user == null){
+        if (user == null) {
             throw new RuntimeException("该用户不存在!");
         }
 
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
         //分页
         page.setLimit(5);
-        page.setPath("/user/myreply/" +userId );
+        page.setPath("/user/myreply/" + userId);
         page.setRows(commentService.findCommentCountByUserId(userId));
 
         //回复列表
-        List<Comment> commentList = commentService.findCommentByUser(userId,page.getOffset(),page.getLimit());
+        List<Comment> commentList = commentService.findCommentByUser(userId, page.getOffset(), page.getLimit());
         //数据展示
-        List<Map<String,Object>> commentVoList = new ArrayList<>();
-        if(commentList != null){
-            for (Comment comment : commentList){
-                Map<String,Object> map = new HashMap<>();
+        List<Map<String, Object>> commentVoList = new ArrayList<>();
+        if (commentList != null) {
+            for (Comment comment : commentList) {
+                Map<String, Object> map = new HashMap<>();
                 //放入评论
-                map.put("comment",comment);
+                map.put("comment", comment);
                 DiscussPost post = discussPostService.findDiscussById(comment.getEntityId());
                 //哪个实体的评论
-                map.put("discussPost",post);
+                map.put("discussPost", post);
                 commentVoList.add(map);
             }
         }
 
-        model.addAttribute("commentVoList",commentVoList);;
+        model.addAttribute("commentVoList", commentVoList);
+        ;
 
         return "/site/my-reply";
     }
