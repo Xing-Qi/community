@@ -20,8 +20,8 @@ import java.util.Date;
  * @author Oliver
  * @create 2022-12-10 11:40
  */
-@Component
-@Aspect
+//@Component
+//@Aspect
 @Slf4j
 public class ServiceLogAspect {
     @Pointcut("execution(* com.nowcoder.community.service.*.*(..))")

@@ -96,3 +96,8 @@ qiniu:
     share:
       name: oliver-community-share
       url: http://rpwceg07z.hb-bkt.clouddn.com
+#caffeine
+caffeine:
+  posts:
+    max-size: 15
+    expired-seconds: 180
