@@ -16,8 +16,8 @@ spring:
       max-wait: 3000
     #邮箱设置
   mail:
-    username: qixing_xinlang@sina.com
-    password: f741e57369eeaa06
+    username: 
+    password: 
     port: 465
     protocol: smtps
     host: smtp.sina.com
@@ -87,8 +87,8 @@ wk:
 #qiniuCloud
 qiniu:
   key:
-    access: B-LkG13Li9njih1emDHa6XmFc7brnanNOqylcKm8
-    secret: 3apMLITauqqbcMCgx5q_qOm15KpuQn-zVPzBcwqr
+    access: 
+    secret: 
   bucket:
     header:
       name: oliver-community-header
